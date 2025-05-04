@@ -10,7 +10,8 @@ import (
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	conf := Config{}
+	conf := pokedexcli.Config{}
+	// conf := Config{"", ""}
 	for {
 		fmt.Print("Pokedex > ")
 		line, err := reader.ReadString('\n')
@@ -18,17 +19,19 @@ func main() {
 			os.Exit(1)
 		}
 
-		lineTokens := cleanInput(line)
+		lineTokens := pokedexcli.CleanInput(line)
 		cmd := lineTokens[0]
 		// args := lineTokens[1:]
 
 		switch cmd {
 		case "map":
-			cmds[cmd].callback(&conf)
+			pokedexcli.cmds[cmd].callback(&conf)
+		case "mapb":
+			pokedexcli.cmds[cmd].callback(&conf)
 		case "exit":
-			cmds[cmd].callback(&conf)
+			pokedexcli.cmds[cmd].callback(&conf)
 		default:
-			commandHelp()
+			pokedexcli.commandHelp()
 		}
 	}
 }

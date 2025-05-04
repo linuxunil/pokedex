@@ -1,4 +1,4 @@
-package pokedexcli
+package main
 
 import (
 	"testing"
@@ -28,7 +28,7 @@ func TestCleanInput(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		actual := cleanInput(c.input)
+		actual := pokedexcli.CleanInput(c.input)
 		if len(actual) != len(c.expected) {
 			t.Errorf("lengths don't match: '%v' vs '%v'", actual, c.expected)
 			continue
