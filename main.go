@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/linuxunil/pokedexcli"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	pokeapi "github.com/linuxunil/pokedexcli/internal/api"
+	pokeapi "github.com/linuxunil/pokedex/internal/api"
 )
 
 type cliCommand struct {
