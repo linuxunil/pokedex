@@ -1,11 +1,11 @@
-package pokedex
+package main
 
 import (
 	"fmt"
 	"os"
 	"strings"
 
-	pokeapi "github.com/linuxunil/pokedex/internal/api"
+	pokeapi "github.com/linuxunil/pokedex/internal"
 )
 
 type cliCommand struct {
@@ -16,24 +16,24 @@ type cliCommand struct {
 
 type Config struct {
 	Next string
-	Prev any
+	Prev string
 }
 
 var cmds = map[string]cliCommand{
 	"exit": {
 		name:        "exit",
 		description: "Exit the Pokedex",
-		callback:    commandExit,
+		callback:    CommandExit,
 	},
 	"map": {
 		name:        "map",
 		description: "Display 20 locations",
-		callback:    commandMap,
+		callback:    CommandMap,
 	},
 	"mapb": {
 		name:        "mapb",
 		description: "Display previous 20 locations",
-		callback:    commandMapb,
+		callback:    CommandMapb,
 	},
 }
 
@@ -42,28 +42,26 @@ func CommandMap(conf *Config) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Next: %s", locations.Next)
-
+	conf.Prev = conf.Next
 	conf.Next = locations.Next
-	conf.Prev = locations.Previous
 
 	for location := range locations.Results {
-		fmt.Println(locations.Results[location])
+		fmt.Println(locations.Results[location].Name)
 	}
 	return nil
 }
 
 func CommandMapb(conf *Config) error {
-	locations, err := pokeapi.Locations(conf.Next)
+
+	locations, err := pokeapi.Locations(conf.Prev)
 	if err != nil {
 		return err
 	}
 
 	conf.Next = locations.Next
 	conf.Prev = locations.Previous
-
 	for location := range locations.Results {
-		fmt.Println(locations.Results[location])
+		fmt.Println(locations.Results[location].Name)
 	}
 
 	return nil

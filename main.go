@@ -4,13 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-
 )
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	conf := pokedexcli.Config{}
-	// conf := Config{"", ""}
+	url := "https://pokeapi.co/api/v2/location-area/"
+	conf := Config{url, ""}
 	for {
 		fmt.Print("Pokedex > ")
 		line, err := reader.ReadString('\n')
@@ -18,19 +17,19 @@ func main() {
 			os.Exit(1)
 		}
 
-		lineTokens := pokedexcli.CleanInput(line)
+		lineTokens := CleanInput(line)
 		cmd := lineTokens[0]
 		// args := lineTokens[1:]
 
 		switch cmd {
 		case "map":
-			pokedexcli.cmds[cmd].callback(&conf)
+			cmds[cmd].callback(&conf)
 		case "mapb":
-			pokedexcli.cmds[cmd].callback(&conf)
+			cmds[cmd].callback(&conf)
 		case "exit":
-			pokedexcli.cmds[cmd].callback(&conf)
+			cmds[cmd].callback(&conf)
 		default:
-			pokedexcli.commandHelp()
+			CommandHelp()
 		}
 	}
 }
