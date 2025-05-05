@@ -9,7 +9,7 @@ import (
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 	url := "https://pokeapi.co/api/v2/location-area/"
-	conf := Config{url, ""}
+	conf := Config{url, "", url}
 	for {
 		fmt.Print("Pokedex > ")
 		line, err := reader.ReadString('\n')
@@ -18,17 +18,11 @@ func main() {
 		}
 
 		lineTokens := CleanInput(line)
-		cmd := lineTokens[0]
-		// args := lineTokens[1:]
+		args := lineTokens[1:]
 
-		switch cmd {
-		case "map":
-			cmds[cmd].callback(&conf)
-		case "mapb":
-			cmds[cmd].callback(&conf)
-		case "exit":
-			cmds[cmd].callback(&conf)
-		default:
+		if cmd, ok := cmds[lineTokens[0]]; ok {
+			cmd.callback(&conf, args)
+		} else {
 			CommandHelp()
 		}
 	}

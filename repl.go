@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -11,12 +12,13 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(conf *Config) error
+	callback    func(conf *Config, opt ...[]string) error
 }
 
 type Config struct {
 	Next string
 	Prev string
+	Url  string
 }
 
 var cmds = map[string]cliCommand{
@@ -35,9 +37,48 @@ var cmds = map[string]cliCommand{
 		description: "Display previous 20 locations",
 		callback:    CommandMapb,
 	},
+	"explore": {
+		name:        "explore",
+		description: "Show pokemon in the area",
+		callback:    CommandExp,
+	},
+	"catch": {
+		name:        "catch",
+		description: "Attempt to catch a pokemon",
+		callback:    CommandCatch,
+	},
 }
+var pokedex = map[string]pokeapi.Pokemon{}
 
-func CommandMap(conf *Config) error {
+func CommandCatch(conf *Config, opt ...[]string) error {
+	fmt.Printf("Throwing a Pokeball at %s...\n", opt[0][0])
+	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v", opt[0][0])
+	poke, err := pokeapi.Catch(url)
+	if err != nil {
+		return err
+	}
+
+	if rand.Int()%100 > poke.BaseExperience%100 {
+		fmt.Printf("%v was caught!\n", poke.Name)
+	} else {
+		fmt.Printf("%v escaped\n", poke.Name)
+	}
+	return nil
+}
+func CommandExp(conf *Config, opt ...[]string) error {
+	areas, err := pokeapi.Areas(conf.Url + opt[0][0])
+	// fmt.Println(conf.Url + opt[0][0])
+	if err != nil {
+		return err
+	}
+	pokemon := areas.PokemonEncounters
+	for p := range pokemon {
+		fmt.Println(pokemon[p].Pokemon.Name)
+	}
+	return nil
+
+}
+func CommandMap(conf *Config, opt ...[]string) error {
 	locations, err := pokeapi.Locations(conf.Next)
 	if err != nil {
 		return err
@@ -51,7 +92,7 @@ func CommandMap(conf *Config) error {
 	return nil
 }
 
-func CommandMapb(conf *Config) error {
+func CommandMapb(conf *Config, opt ...[]string) error {
 
 	locations, err := pokeapi.Locations(conf.Prev)
 	if err != nil {
@@ -67,7 +108,7 @@ func CommandMapb(conf *Config) error {
 	return nil
 }
 
-func CommandExit(conf *Config) error {
+func CommandExit(conf *Config, opt ...[]string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
