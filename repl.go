@@ -58,10 +58,15 @@ func CommandCatch(conf *Config, opt ...[]string) error {
 		return err
 	}
 
-	if rand.Int()%100 > poke.BaseExperience%100 {
-		fmt.Printf("%v was caught!\n", poke.Name)
+	if _, ok := pokedex[poke.Name]; !ok {
+		if rand.Int()%100 > poke.BaseExperience%100 {
+			fmt.Printf("%v was caught!\n", poke.Name)
+			pokedex[poke.Name] = poke
+		} else {
+			fmt.Printf("%v escaped\n", poke.Name)
+		}
 	} else {
-		fmt.Printf("%v escaped\n", poke.Name)
+		fmt.Printf("You already have a %v", poke.Name)
 	}
 	return nil
 }
