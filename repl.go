@@ -47,9 +47,73 @@ var cmds = map[string]cliCommand{
 		description: "Attempt to catch a pokemon",
 		callback:    CommandCatch,
 	},
+	"inspect": {
+		name:        "inspect",
+		description: "See pokemon stats",
+		callback:    CommandInspect,
+	},
+	"pokedex": {
+		name:        "pokedex",
+		description: "See Pokedex",
+		callback:    CommandPokedex,
+	},
 }
 var pokedex = map[string]pokeapi.Pokemon{}
 
+func CommandPokedex(conf *Config, opt ...[]string) error {
+	fmt.Println("Your Pokedex")
+	for p := range pokedex {
+		fmt.Printf(" - %v\n", pokedex[p].Name)
+	}
+	return nil
+}
+func CommandInspect(conf *Config, opt ...[]string) error {
+	type statKey int
+	const (
+		hp statKey = iota
+		atk
+		def
+		satk
+		sdef
+		spd
+	)
+	/*Name: pidgey
+	  Height: 3
+	  Weight: 18
+	  Stats:
+	    -hp: 40
+	    -attack: 45
+	    -defense: 40
+	    -special-attack: 35
+	    -special-defense: 35
+	    -speed: 56
+	  Types:
+	    - normal
+	    - flying
+	*/
+
+	if poke, ok := pokedex[strings.ToLower(opt[0][0])]; ok {
+		fmt.Printf("Name: %v\n", poke.Name)
+		fmt.Printf("Height: %v\n", poke.Height)
+		fmt.Printf("Weight: %v\n", poke.Weight)
+		fmt.Printf("Stats:\n")
+		fmt.Printf("-hp: %v\n", poke.Stats[hp].BaseStat)
+		fmt.Printf("-attack: %v\n", poke.Stats[atk].BaseStat)
+		fmt.Printf("-defense: %v\n", poke.Stats[def].BaseStat)
+		fmt.Printf("-special-attack: %v\n", poke.Stats[satk].BaseStat)
+		fmt.Printf("-special-defense: %v\n", poke.Stats[sdef].BaseStat)
+		fmt.Printf("-speed: %v\n", poke.Stats[spd].BaseStat)
+		fmt.Printf("Types:\n")
+		for t := range poke.Types {
+			fmt.Printf("- %v\n", poke.Types[t].Type.Name)
+		}
+	} else {
+		fmt.Printf("You haven't caught a %v\n", opt[0][0])
+	}
+
+	return nil
+
+}
 func CommandCatch(conf *Config, opt ...[]string) error {
 	fmt.Printf("Throwing a Pokeball at %s...\n", opt[0][0])
 	url := fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v", opt[0][0])
@@ -58,10 +122,10 @@ func CommandCatch(conf *Config, opt ...[]string) error {
 		return err
 	}
 
-	if _, ok := pokedex[poke.Name]; !ok {
+	if _, ok := pokedex[strings.ToLower(poke.Name)]; !ok {
 		if rand.Int()%100 > poke.BaseExperience%100 {
 			fmt.Printf("%v was caught!\n", poke.Name)
-			pokedex[poke.Name] = poke
+			pokedex[strings.ToLower(poke.Name)] = poke
 		} else {
 			fmt.Printf("%v escaped\n", poke.Name)
 		}
